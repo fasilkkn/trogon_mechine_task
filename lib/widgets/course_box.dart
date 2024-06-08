@@ -3,18 +3,21 @@ import 'package:trogon_mechine_task/utils/app_colors.dart';
 
 class CourseBox extends StatelessWidget {
   String text;
-   CourseBox({super.key, required this.text});
+  Color color;
+  Widget child;
+   CourseBox({super.key, required this.text, required this.color, required this.child});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         CircleAvatar(
-          radius: 40,
-          backgroundColor: AppColors.buttonColor,
+          radius: 30,
+          backgroundColor: color,
+          child: Center(child: child,),
         ),
 
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
         Text(text),
       ],
     );

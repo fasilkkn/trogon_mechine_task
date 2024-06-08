@@ -4,7 +4,9 @@ import 'package:trogon_mechine_task/utils/app_colors.dart';
 class Box extends StatelessWidget {
   Widget child;
   String text;
- Box({super.key, required this.child, required this.text});
+  Color color;
+  Color color2;
+ Box({super.key, required this.child, required this.text, required this.color, required this.color2});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class Box extends StatelessWidget {
       width: 100,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color:  AppColors.buttonColor,
+        color: color
         ),
         child: Stack(
           alignment: Alignment.center,
@@ -26,7 +28,7 @@ class Box extends StatelessWidget {
             child: Container(
               height: 30,
               width: double.infinity,
-              color: AppColors.blackColor,
+              color: color2,
               child: Center(child: Text(text, style: TextStyle(color: AppColors.whiteColor),),),
             ),
             )

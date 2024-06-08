@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:trogon_mechine_task/utils/app_colors.dart';
+import 'package:trogon_mechine_task/view_model/course_view_model.dart';
 import 'package:trogon_mechine_task/widgets/box.dart';
 import 'package:trogon_mechine_task/widgets/course_box.dart';
+import 'package:trogon_mechine_task/widgets/series_box.dart';
+
+import '../data/response/status.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,13 +16,23 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  CourseViewModel courseViewModel = CourseViewModel();
+
+  @override
+  void initState() {
+    courseViewModel.fetchCourseListApi();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+        final course =Provider.of<CourseViewModel>(context);
     return Scaffold(
       appBar : AppBar(
       toolbarHeight: 240.0,
       flexibleSpace: Container(
-        color: Colors.purple,
+        color:  AppColors.buttonColor,
         child: Padding(
           padding: const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
           child: Column(
@@ -37,7 +52,7 @@ class _HomePageState extends State<HomePage> {
              Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                 color: Colors.black54,),
+                 color: AppColors.whiteColor,),
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
@@ -46,12 +61,13 @@ class _HomePageState extends State<HomePage> {
                    const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [   
-                   Text('Selected Course', style: TextStyle(color: Colors.white),),
-                   Text('Montessori', style: TextStyle(color: Colors.white, fontSize: 20 ),),
+                   Text('Selected Course', style: TextStyle(color: AppColors.blackColor),),
+                   Text('Montessori', style: TextStyle(color: AppColors.blackColor, fontSize: 20 ),),
                    ],),
                 
                    ElevatedButton(
-                    onPressed: () {}, child: const Center(child: Text('Change'),))
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.buttonColor),
+                    onPressed: () {}, child: const Center(child: Text('Change', style: TextStyle(color: AppColors.whiteColor),),))
                   ],
                 ),
               ),
@@ -60,7 +76,22 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     ),
-      body: Padding(
+      body: 
+      ChangeNotifierProvider<CourseViewModel>(
+        create: (BuildContext context)=>courseViewModel,
+        child: Consumer<CourseViewModel>(
+          builder: (context,value,_){
+
+            switch(value.courseList.status){
+              case Status.Loading:
+                return Center(child: const CircularProgressIndicator());
+
+              case Status.Error:
+                return  Center(child: Text(value.courseList.message.toString()));
+
+              case Status.Completed:
+                return 
+      Padding(
         padding: const EdgeInsets.all(20.0),
         child: ListView(
           children: [
@@ -69,17 +100,24 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Box(
                   text: 'Exam',
-                  child:  const Icon(Icons.book, size: 40, color: AppColors.whiteColor,),
+                  color: AppColors.examColor,
+                  color2: AppColors.examColorBottom,
+                  child:  const Icon(Icons.book, size: 40, color: AppColors.whiteColor,
+                  ),
                 ),
 
                 Box(
                   text: 'Practice',
-                  child:  const Icon(Icons.book, size: 40, color: AppColors.whiteColor,),
+                  color: AppColors.practiceColor,
+                  color2: AppColors.practiceColorBottom,
+                  child:  const Icon(Icons.done_all_rounded, size: 40, color: AppColors.whiteColor,),
                 ),
 
                 Box(
                   text: 'Materials',
-                  child:  const Icon(Icons.book, size: 40, color: AppColors.whiteColor,),
+                  color: AppColors.materialsColor,
+                  color2: AppColors.materialsColorBottom,
+                  child:  const Icon(Icons.bookmarks, size: 40, color: AppColors.whiteColor,),
                 ),
               ],
             ),
@@ -96,63 +134,77 @@ class _HomePageState extends State<HomePage> {
             ],),
 
             const SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CourseBox(text: 'KTET',),
-                 CourseBox(text: 'LP/UP/HST',),
-                  CourseBox(text: 'SET',),
-              ],
-            ),
+            GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3, // Number of items per row
+            mainAxisSpacing: 20.0, // Spacing between rows
+            crossAxisSpacing: 10.0, // Spacing between columns
+            childAspectRatio: 3 / 3, // Width to height ratio of each grid item
+                      ),
+                      itemCount:  value.courseList.data!.data.userdata.courseName.length,
+                      itemBuilder: (context, index) {
+            return   CourseBox(text: value.courseList.data!.data.userdata.courseName, color: AppColors.examColor, child: const Icon(Icons.people_alt_outlined),);
+                    
+                      },
+                    ),
+      
+      
 
-             const SizedBox(height: 20,),
+             const SizedBox(height: 30,),
 
             Container(
               height: 100,
               width: double.infinity,
-              color: AppColors.buttonColor,
+              color: AppColors.yellowlight,
               child: const Center(
                 child: Padding( 
-                  padding: const EdgeInsets.all(30.0),
+                  padding:  EdgeInsets.all(30.0),
                   child: Row(
                     children: [
                       Expanded(child: Text('Practice With Previous Year Question Papers',
-                      style: TextStyle(color: AppColors.whiteColor),)),
-                      Icon(Icons.arrow_forward, color: AppColors.whiteColor,),
+                      style: TextStyle(color: AppColors.blackColor),)),
+                      Icon(Icons.arrow_forward, color: AppColors.blackColor,),
                     ],
                   ),
                 ),
               ),
             ),
 
-            SizedBox(height: 30,),
-            Text('Latest Test Series', style: TextStyle(
+            const SizedBox(height: 30,),
+            const Text('Latest Test Series', style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold
               ),),
 
-              SizedBox(height: 20,),
-              Row(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      color: AppColors.buttonColor),
-                    height: 100,
-                    child: Padding(
-                      padding: const EdgeInsets.all(30.0),
-                      child: Column(
-                        children: [
-                          Text('Exam 102 - Biology '),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: 20,),
+               SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    SeriesBox(color: AppColors.examColorBottom,),
+                
+                    const SizedBox(width: 10,),
+                      SeriesBox(color: AppColors.practiceColor,),
+                
+                    const SizedBox(width: 10,),
+                      SeriesBox(color: AppColors.materialsColor,),
+                
+                    const SizedBox(width: 10,),
+                      SeriesBox(color: AppColors.examColor,),
+                
+                    const SizedBox(width: 10,),
+                  ],
+                ),
               )
           ],
         ),
-      ),
-    );
+      );
+              case null:
+                // TODO: Handle this case.
+            } return Container();
+            }),
+    ));
   }
 }
