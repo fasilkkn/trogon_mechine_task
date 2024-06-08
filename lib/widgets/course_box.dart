@@ -18,7 +18,7 @@ class CourseBox extends StatelessWidget {
         ),
 
         const SizedBox(height: 10,),
-        Text(text),
+        Text(text, textAlign: TextAlign.center,),
       ],
     );
   }
